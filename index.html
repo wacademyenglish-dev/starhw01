@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLFAITH Mobile HW: The Star in the Night</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Playfair+Display:ital,wght@0,400;0,600;0,800;1,400;1,600&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sacred: {
+                            gold: '#D4AF37',
+                            gold_dim: '#8B6508',
+                            dark: '#03060a',
+                            panel: '#0a1128',
+                            border: '#1a2c54'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        cinzel: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #03060a;
+            color: #f4f4f5;
+            font-family: 'Inter', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 0; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-wrapper {
+            width: 100%; max-width: 430px; height: 100vh; max-height: 100vh;
+            background: radial-gradient(circle at top, #0a1128 0%, #03060a 60%, #000000 100%);
+            position: relative; overflow-x: hidden; overflow-y: auto; scroll-behavior: smooth;
+        }
+        
+        /* Premium Background with Stardust Texture */
+        .mobile-wrapper::before {
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("https://www.transparenttextures.com/patterns/stardust.png");
+            opacity: 0.5; mix-blend-mode: color-dodge; pointer-events: none; z-index: 0;
+            animation: drift 120s linear infinite;
+        }
+        @keyframes drift { 0% { background-position: 0 0; } 100% { background-position: 1000px 1000px; } }
+
+        @media (min-width: 640px) {
+            .mobile-wrapper {
+                height: 90vh; border-radius: 8px; border: 1px solid #1a2c54;
+                box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(212, 175, 55, 0.1);
+            }
+        }
+        
+        .mobile-wrapper::-webkit-scrollbar { width: 4px; }
+        .mobile-wrapper::-webkit-scrollbar-track { background: transparent; }
+        .mobile-wrapper::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.5); border-radius: 10px; }
+
+        .question-card { 
+            background: linear-gradient(180deg, rgba(8, 12, 20, 0.85) 0%, rgba(3, 5, 10, 0.95) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.15); 
+            backdrop-filter: blur(12px); 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 10px 20px rgba(0,0,0,0.5);
+        }
+        .question-card.active { border-color: rgba(212, 175, 55, 0.5); box-shadow: 0 0 15px rgba(212, 175, 55, 0.1), inset 0 0 20px rgba(0,0,0,0.8); }
+
+        .option-btn { 
+            transition: all 0.2s; border-left: 3px solid transparent; 
+            background-color: rgba(0,0,0,0.4); border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+        .option-btn:hover:not(:disabled) { 
+            background: rgba(212, 175, 55, 0.05); border-color: rgba(212, 175, 55, 0.4); 
+            transform: translateX(4px); 
+        }
+        .option-btn.correct { 
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 78, 59, 0.4) 100%) !important; 
+            color: #34d399 !important; border-color: #10b981 !important; border-left: 3px solid #10b981 !important; 
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); 
+        }
+        .option-btn.wrong { 
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.2) 0%, rgba(127, 29, 29, 0.4) 100%) !important; 
+            color: #f87171 !important; border-color: #ef4444 !important; border-left: 3px solid #ef4444 !important; 
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); 
+        }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+
+        .shake { animation: shake 0.4s both; border-color: #ef4444 !important; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(3px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-5px, 0, 0); } 40%, 60% { transform: translate3d(5px, 0, 0); } }
+
+        .progress-point { transition: all 0.3s; }
+        .progress-point.filled { background-color: #D4AF37; box-shadow: 0 0 8px #D4AF37; }
+
+        .confetti { position: absolute; width: 6px; height: 12px; opacity: 0; z-index: 100; box-shadow: 0 0 5px currentColor;}
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+        .holy-seal-spin { animation: spin 20s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .pulse-glow { animation: pulseGlow 4s infinite alternate ease-in-out; }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 15px rgba(212,175,55,0.1); } 100% { box-shadow: 0 0 40px rgba(212,175,55,0.4); } }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #FFDF73 0%, #D4AF37 40%, #996515 80%, #5c3c08 100%);
+            color: #050505; font-weight: 900; text-transform: uppercase; letter-spacing: 0.2em;
+            border: 1px solid #FFED99; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3), inset 0 2px 5px rgba(255,255,255,0.5);
+            transition: all 0.3s ease; text-shadow: 0 1px 1px rgba(255,255,255,0.3);
+        }
+        .btn-gold:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-wrapper" id="app-container">
+        
+        <!-- HEADER -->
+        <header class="sticky top-0 z-50 bg-[#03060a]/80 backdrop-blur-xl border-b border-sacred-border px-6 pt-5 pb-3 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <div>
+                    <h1 class="font-serif italic font-bold text-sacred-gold tracking-widest text-xl">WOLFAITH <span class="text-zinc-500 font-sans text-sm not-italic uppercase">HW</span></h1>
+                    <p class="font-sans text-[9px] text-zinc-400 uppercase tracking-[0.3em] font-bold mt-1">The Star in the Night • A1</p>
+                </div>
+                <div class="text-right bg-sacred-panel px-3 py-1 rounded border border-sacred-border shadow-inner">
+                    <span id="score-counter" class="font-sans text-[10px] font-bold text-zinc-300 tracking-widest uppercase">0/15 Shining</span>
+                </div>
+            </div>
+            <div class="flex justify-between gap-1 mb-1" id="progress-container"></div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="p-4 pb-32 space-y-6 relative z-10">
+            
+            <!-- HERO CARD (The Cosmic Seal) -->
+            <div class="bg-sacred-panel p-6 rounded border border-sacred-border relative overflow-hidden flex flex-col items-center text-center shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+                <div class="absolute w-40 h-40 bg-sacred-gold/10 rounded-full blur-3xl top-0 left-0 pointer-events-none"></div>
+                
+                <!-- Animated Seal -->
+                <div class="w-24 h-24 rounded-full border border-sacred-gold/30 p-1 mb-6 pulse-glow flex items-center justify-center relative">
+                    <div class="w-full h-full rounded-full border-2 border-dashed border-sacred-gold/40 holy-seal-spin absolute inset-0 m-1"></div>
+                    <div class="w-20 h-20 rounded-full bg-[#03060a] flex items-center justify-center border border-sacred-gold/20 shadow-[inset_0_0_20px_rgba(0,0,0,0.9)] relative z-10">
+                        <i class="fa-solid fa-star text-4xl text-sacred-gold drop-shadow-[0_0_15px_rgba(212,175,55,0.8)]"></i>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-black/80 backdrop-blur-md p-4 text-center border border-sacred-border rounded shadow-inner z-10 relative">
+                    <h2 class="font-serif italic text-sacred-gold text-2xl drop-shadow-md">The Light's Test</h2>
+                    <p class="font-sans text-[10px] font-bold text-zinc-300 mt-2 uppercase tracking-[0.2em]">The Verb "To Be"</p>
+                </div>
+            </div>
+
+            <!-- QUIZ CONTAINER -->
+            <div id="quiz-container" class="space-y-6 relative z-10"></div>
+        </main>
+
+        <!-- STICKY BOTTOM BUTTON -->
+        <div class="sticky bottom-0 left-0 w-full bg-gradient-to-t from-[#03060a] via-[#03060a] to-transparent pt-12 pb-6 px-6 z-50">
+            <button id="submit-btn" onclick="checkAllAndSubmit()" class="w-full btn-gold py-4 rounded text-sm flex items-center justify-center gap-3">
+                <i class="fa-solid fa-star"></i>
+                Follow the Star
+            </button>
+        </div>
+
+        <!-- SUCCESS OVERLAY -->
+        <div id="success-overlay" class="fixed inset-0 bg-[#03060a]/95 backdrop-blur-xl z-[100] flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500 hidden">
+            <div class="w-32 h-32 bg-black border-2 border-sacred-gold rounded-full flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(212,175,55,0.6)] transform scale-50 transition-transform duration-700 pulse-glow relative z-10" id="success-badge">
+                <i class="fa-solid fa-crown text-6xl text-sacred-gold"></i>
+            </div>
+            <h1 class="font-serif italic font-bold text-5xl text-white mb-3 text-center tracking-tight drop-shadow-lg relative z-10">The Star Shines.</h1>
+            <p class="font-sans font-bold text-sacred-gold tracking-[0.3em] uppercase text-xs mb-8 text-center relative z-10">The King is Born</p>
+            
+            <div class="bg-sacred-panel/80 backdrop-blur-md border border-sacred-gold/40 px-10 py-4 rounded mb-8 shadow-[0_0_30px_rgba(0,0,0,0.9)] relative z-10">
+                <div class="font-sans text-white text-xl font-bold tracking-[0.2em] uppercase" id="final-score">SCORE: 15/15</div>
+            </div>
+            
+            <p class="font-serif italic text-zinc-300 text-lg mb-12 text-center max-w-[280px] relative z-10 drop-shadow-md">You have mastered the Verb To Be and the Nativity vocabulary.</p>
+            
+            <button onclick="location.reload()" class="bg-black/50 backdrop-blur-md border border-sacred-gold text-sacred-gold font-sans font-bold px-10 py-3 rounded uppercase text-xs tracking-widest hover:bg-sacred-gold hover:text-black transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] relative z-10">
+                Return to the Sky
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            { q: "1. I _____ a child of God.", a: ["am", "is", "are"], c: 0 },
+            { q: "2. Mary _____ a mother.", a: ["are", "am", "is"], c: 2 },
+            { q: "3. They _____ in Bethlehem.", a: ["is", "are", "am"], c: 1 },
+            { q: "4. He _____ not in a big house.", a: ["am", "is", "are"], c: 1 },
+            { q: "5. What is a 'stable'?", a: ["A house for animals", "A big castle", "A star"], c: 0 },
+            { q: "6. We _____ safe here.", a: ["is", "am", "are"], c: 2 },
+            { q: "7. Jesus _____ a baby.", a: ["is", "are", "am"], c: 0 },
+            { q: "8. You _____ my friend.", a: ["am", "is", "are"], c: 2 },
+            { q: "9. What is a 'star'?", a: ["A light in the sky", "A boat", "A fish"], c: 0 },
+            { q: "10. I _____ not afraid.", a: ["is", "are", "am"], c: 2 },
+            { q: "11. They _____ not in a city.", a: ["is", "are", "am"], c: 1 },
+            { q: "12. Joseph _____ a father.", a: ["are", "is", "am"], c: 1 },
+            { q: "13. What is a 'town'?", a: ["A big animal", "A small city", "A king"], c: 1 },
+            { q: "14. The star _____ bright.", a: ["is", "are", "am"], c: 0 },
+            { q: "15. She _____ not angry.", a: ["are", "am", "is"], c: 2 }
+        ];
+
+        let userAnswers = Array(15).fill(null);
+        let solvedCount = 0;
+
+        function initQuiz() {
+            const container = document.getElementById('quiz-container');
+            const progress = document.getElementById('progress-container');
+            
+            quizData.forEach((item, idx) => {
+                // Progress Dots
+                const dot = document.createElement('div');
+                dot.className = `h-1 flex-1 bg-sacred-gold/20 rounded-full progress-point dot-${idx}`;
+                progress.appendChild(dot);
+
+                // Quiz Cards
+                const card = document.createElement('div');
+                card.className = `question-card rounded-md p-6 q-card-${idx}`;
+                card.innerHTML = `
+                    <p class="font-serif italic text-xl font-bold mb-5 text-white leading-relaxed tracking-wide drop-shadow-sm">${item.q}</p>
+                    <div class="grid grid-cols-1 gap-3 font-sans tracking-wide text-sm">
+                        ${item.a.map((opt, oIdx) => `
+                            <button class="option-btn text-zinc-300 py-4 px-4 rounded text-left flex items-center justify-between group btn-${idx}-${oIdx}" onclick="answer(${idx}, ${oIdx})">
+                                <span>${opt}</span>
+                                <div class="w-5 h-5 rounded-full border border-sacred-gold/30 group-hover:border-sacred-gold transition-colors flex items-center justify-center text-[10px]"></div>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function answer(qIdx, oIdx) {
+            if (userAnswers[qIdx] !== null) return;
+
+            const correct = quizData[qIdx].c;
+            const btn = document.querySelector(`.btn-${qIdx}-${oIdx}`);
+            const card = document.querySelector(`.q-card-${qIdx}`);
+            const dot = document.querySelector(`.dot-${qIdx}`);
+            const allBtnsInCard = card.querySelectorAll('.option-btn');
+
+            allBtnsInCard.forEach(b => b.disabled = true);
+
+            if (oIdx === correct) {
+                btn.classList.add('correct');
+                btn.classList.remove('text-zinc-300');
+                btn.querySelector('div').innerHTML = '<i class="fa-solid fa-check"></i>';
+                btn.querySelector('div').className = 'w-5 h-5 flex items-center justify-center text-[10px] border-none text-emerald-900 bg-emerald-400 rounded-full shadow-md';
+                userAnswers[qIdx] = true;
+            } else {
+                btn.classList.add('wrong');
+                btn.classList.remove('text-zinc-300');
+                btn.querySelector('div').innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                btn.querySelector('div').className = 'w-5 h-5 flex items-center justify-center text-[10px] border-none text-red-900 bg-red-400 rounded-full shadow-md';
+                
+                const correctBtn = document.querySelector(`.btn-${qIdx}-${correct}`);
+                correctBtn.classList.add('correct');
+                correctBtn.classList.remove('text-zinc-300');
+                correctBtn.querySelector('div').innerHTML = '<i class="fa-solid fa-check"></i>';
+                correctBtn.querySelector('div').className = 'w-5 h-5 flex items-center justify-center text-[10px] border-none text-emerald-900 bg-emerald-400 rounded-full shadow-md';
+                
+                card.classList.add('shake');
+                userAnswers[qIdx] = false;
+            }
+
+            dot.classList.add('filled');
+            solvedCount++;
+            updateHeader();
+        }
+
+        function updateHeader() {
+            const scoreLabel = document.getElementById('score-counter');
+            scoreLabel.innerText = `${solvedCount}/15 SHINING`;
+            
+            scoreLabel.classList.add('text-sacred-gold');
+            scoreLabel.classList.remove('text-zinc-300');
+            setTimeout(() => {
+                scoreLabel.classList.remove('text-sacred-gold');
+                scoreLabel.classList.add('text-zinc-300');
+            }, 300);
+        }
+
+        function checkAllAndSubmit() {
+            if (solvedCount < 15) {
+                const btn = document.getElementById('submit-btn');
+                btn.classList.add('shake', 'bg-red-900', 'text-white', 'border-red-500');
+                btn.classList.remove('btn-gold');
+                btn.innerHTML = "JOURNAL INCOMPLETE";
+                setTimeout(() => {
+                    btn.classList.remove('shake', 'bg-red-900', 'text-white', 'border-red-500');
+                    btn.classList.add('btn-gold');
+                    btn.innerHTML = `<i class="fa-solid fa-star"></i> Follow the Star`;
+                }, 1500);
+                return;
+            }
+
+            const finalCorrect = userAnswers.filter(a => a === true).length;
+            const overlay = document.getElementById('success-overlay');
+            const badge = document.getElementById('success-badge');
+            
+            document.getElementById('final-score').innerText = `SCORE: ${finalCorrect} / 15`;
+            
+            overlay.style.display = 'flex';
+            void overlay.offsetWidth;
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                badge.classList.remove('scale-50');
+                badge.classList.add('scale-100');
+                shootConfetti();
+            }, 100);
+        }
+
+        function shootConfetti() {
+            const container = document.getElementById('app-container');
+            const colors = ['#D4AF37', '#FFD700', '#FFFFFF', '#8ba8cc']; 
+            for(let i=0; i<80; i++) {
+                let c = document.createElement('div');
+                c.className = 'confetti rounded-sm';
+                c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.left = Math.random() * 100 + '%';
+                c.style.animation = `fall ${Math.random()*2+2}s linear forwards`;
+                c.style.animationDelay = Math.random()*0.5+'s';
+                container.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
+            }
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
